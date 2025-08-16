@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <title>Flipbook MOKA-KU 2025</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
+
+<!-- StPageFlip CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/st-pageflip@1.0.6/dist/css/page-flip.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/st-pageflip@1.0.6/dist/js/page-flip.browser.min.js"></script>
 
 <style>
-body { margin:0; background:#f0f0f0; font-family:sans-serif; }
-#flipbook-container { width:100%; max-width:900px; height:80vh; margin:20px auto; position:relative; overflow:hidden;}
-#flipbook div { width:100%; height:100%; }
-#flipbook img { width:100%; height:100%; object-fit:contain; display:block; }
+body { margin:0; background:#f0f0f0; }
+#flipbook-container { width:100%; max-width:900px; height:80vh; margin:20px auto; position:relative; }
+#flipbook { width:100%; height:100%; }
 #prevBtn, #nextBtn {
   position:absolute; top:50%; transform:translateY(-50%);
   z-index:10; background:rgba(0,0,0,0.3); color:white; border:none;
@@ -29,44 +29,36 @@ body { margin:0; background:#f0f0f0; font-family:sans-serif; }
 </div>
 
 <script>
-$(document).ready(function(){
-  const flipbook = $("#flipbook");
-  const totalPages = 66;
+// Container flipbook
+const container = document.getElementById('flipbook');
 
-  // Tambahkan halaman
-  for(let i=1; i<=totalPages; i++){
-    const num = String(i).padStart(3,'0');
-    const pageDiv = $('<div></div>');
-    const img = $('<img>').attr('src', `booklet/BOOKLET PESERTA MOKA-KU 2025-page-${num}.jpg`);
-    pageDiv.append(img);
-    flipbook.append(pageDiv);
-  }
+// Array URL halaman
+const totalPages = 66;
+const pages = [];
+for(let i=1;i<=totalPages;i++){
+  const num = String(i).padStart(3,'0');
+  pages.push(`https://raw.githubusercontent.com/hafidzf25/mokaku2025/main/booklet/BOOKLET%20PESERTA%20MOKA-KU%202025-page-${num}.jpg`);
+}
 
-  // Inisialisasi Turn.js
-  flipbook.turn({
-    width: flipbook.parent().width(),
-    height: flipbook.parent().height(),
-    autoCenter: true,
-    display: 'single',
-    acceleration: true
-  });
-
-  // Tombol prev/next
-  $("#prevBtn").click(()=>flipbook.turn('previous'));
-  $("#nextBtn").click(()=>flipbook.turn('next'));
-
-  // Swipe mobile
-  let startX = 0;
-  flipbook[0].addEventListener('touchstart', e=> startX = e.touches[0].clientX);
-  flipbook[0].addEventListener('touchend', e=>{
-    const endX = e.changedTouches[0].clientX;
-    if(endX - startX > 50) flipbook.turn('previous');
-    else if(startX - endX > 50) flipbook.turn('next');
-  });
-
-  // Resize responsive
-  $(window).resize(()=>flipbook.turn('size', flipbook.parent().width(), flipbook.parent().height()));
+// Inisialisasi StPageFlip
+const flipbook = new St.PageFlip(container, {
+  width: container.offsetWidth,
+  height: container.offsetHeight,
+  size: "stretch",
+  drawShadow: true,
+  flippingTime: 600,
+  showCover: true,
 });
+
+// Load semua halaman
+flipbook.loadFromImages(pages);
+
+// Tombol prev/next
+document.getElementById('prevBtn').onclick = () => flipbook.flipPrev();
+document.getElementById('nextBtn').onclick = () => flipbook.flipNext();
+
+// Responsive
+window.addEventListener('resize', () => flipbook.update(container.offsetWidth, container.offsetHeight));
 </script>
 
 </body>
